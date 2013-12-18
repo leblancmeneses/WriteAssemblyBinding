@@ -1,0 +1,31 @@
+@* Generator: Template *@
+@using System.Collections.Generic
+@using System.Reflection
+@using System.Text
+@functions {
+	public List<Assembly> Model { get; set; }
+
+	private static string GetPublicKeyToken(Assembly assembly)
+	{
+		var sb = new StringBuilder();
+		var pk = assembly.GetName().GetPublicKeyToken();
+		for (var i = 0; i < pk.GetLength(0); i++)
+			sb.AppendFormat("{0:x2}", pk[i]);
+		return sb.ToString();
+	}
+}
+ 
+
+<assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+@foreach (var a in Model)
+{
+	if (string.IsNullOrEmpty(GetPublicKeyToken(a)))
+	{
+		continue;
+	}
+	<dependentAssembly>
+		<assemblyIdentity name="@a.GetName().Name" publicKeyToken="@GetPublicKeyToken(a)" />
+		<bindingRedirect oldVersion="0.0.0.0-@a.GetName().Version.ToString()" newVersion="@a.GetName().Version.ToString()" />
+	</dependentAssembly>
+}
+</assemblyBinding>
